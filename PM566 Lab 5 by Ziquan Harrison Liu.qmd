@@ -1,0 +1,91 @@
+---
+title: "PM 566 Lab 5"
+author: "Ziquan 'Harrison' Liu"
+format: 
+  html:
+    embed-resources: true
+fig-width: 8
+fig-heigth: 6
+---
+# library package
+```{r}
+library(dplyr)
+```
+# Data Preparation
+```{r}
+# Download the data
+stations <- read.csv("https://noaa-isd-pds.s3.amazonaws.com/isd-history.csv")
+stations$USAF <- as.integer(stations$USAF)
+
+# Dealing with blanks and 999999
+stations$USAF[stations$USAF == 999999] <- NA
+stations$CTRY[stations$CTRY == ""] <- NA
+stations$STATE[stations$STATE == ""] <- NA
+
+# Selecting the three relevant columns, and keeping unique records
+stations <- unique(stations[, c('USAF', 'CTRY', 'STATE')])
+
+# Dropping NAs
+stations <- stations[!is.na(stations$USAF), ]
+
+# Removing duplicates
+stations <- stations[!duplicated(stations$USAF), ]
+```
+
+```{r}
+if (!file.exists("met_all.gz"))
+  download.file(
+    url = "https://raw.githubusercontent.com/USCbiostats/data-science-data/master/02_met/met_all.gz",
+    destfile = "met_all.gz",
+    method   = "libcurl",
+    timeout  = 60
+    )
+met <- data.table::fread("met_all.gz")
+```
+
+```{r}
+# check duplicate on stations data
+stations <- stations[!duplicated(stations$USAF), ]
+```
+
+```{r}
+dat <- merge(
+  # Data
+  x     = met,      
+  y     = stations, 
+  # List of variables to match
+  by.x  = "USAFID",
+  by.y  = "USAF", 
+  # Which obs to keep?
+  all.x = TRUE,      
+  all.y = FALSE
+  )
+
+head(dat[, c('USAFID', 'WBAN', 'STATE')], n = 4)
+```
+
+# Question 1
+
+# Question 2
+
+# Question 3
+
+# Question 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
